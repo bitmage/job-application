@@ -1,4 +1,10 @@
+require 'action_view'
+require 'active_support'
 class Helper < ActionView::Base
+  def self.foo
+    "foo"
+  end
+
   def image_size(profile, non_rep_size)
     if profile.user.rep?
       '190x114'
@@ -33,25 +39,31 @@ class Helper < ActionView::Base
       if profile.user && profile.user.photo && File.exists?(profile.user.photo)
         @user = profile.user
         if link
-          return link_to(image_tag(url_for_file_column("user", profile.name, "photo", size), html), profile_path(profile) )
+          return link_to(image_tag(url_for_file_column("user", "photo", size), html), profile_path(profile) )
         else
-          return image_tag(url_for_file_column("user", profile.name, "photo", size), html)
+          return image_tag(url_for_file_column("user", "photo", size), html)
         end
+      else
+        show_default_image ? default_photo(profile, size, {}, link) : ''
       end
     end
-    show_default_image ? default_photo(profile, size, {}, link) : 'NO DEFAULT'
+
+    show_default_image ? default_photo(profile, size, {}, link) : ''
   end
 
   def default_photo(profile, size, html={}, link = true)
-    if profile.user && profile.user.rep?
-      tag = image_tag("user190x119.jpg", html)
-    else
-      tag = image_tag("user#{size}.jpg", html)
-    end
     if link
-      link_to(tag, profile_path(profile))
+      if profile.user.rep?
+        link_to(image_tag("user190x119.jpg", html), profile_path(profile) )
+      else
+        link_to(image_tag("user#{size}.jpg", html), profile_path(profile) )
+      end
     else
-      tag
+      if profile.user.rep?
+        image_tag("user190x119.jpg", html)
+      else
+        image_tag("user#{size}.jpg", html)
+      end
     end
   end
 end
