@@ -12,7 +12,6 @@ require 'user_profile'
 require 'helper'
 require 'user'
 require 'photo'
-require 'mock_methods'
 
 describe "Helper" do
   before(:each) do

@@ -30,16 +30,12 @@ class Helper < ActionView::Base
     html.reverse_merge!(:class => 'thumbnail', :size => size, :title => "Link to #{profile.name}")
 
     if profile && profile.user
-      if profile.user && profile.user.photo && File.exists?(profile.user.photo)
-        @user = profile.user
-        if link
-          return link_to(image_tag(url_for_file_column("user", profile.name, "photo", size), html), profile_path(profile) )
-        else
-          return image_tag(url_for_file_column("user", profile.name, "photo", size), html)
-        end
+      if profile.user.photo && File.exists?(profile.user.photo)
+        tag = image_tag(url_for_file_column("user", profile.name, "photo", size), html)
+        return create_photo_html(tag, profile, link)
       end
     end
-    show_default_image ? default_photo(profile, size, {}, link) : 'NO DEFAULT'
+    return show_default_image ? default_photo(profile, size, {}, link) : 'NO DEFAULT'
   end
 
   def default_photo(profile, size, html={}, link = true)
@@ -48,10 +44,23 @@ class Helper < ActionView::Base
     else
       tag = image_tag("user#{size}.jpg", html)
     end
+    create_photo_html(tag, profile, link)
+  end
+
+  def create_photo_html(tag, profile, link = true)
     if link
       link_to(tag, profile_path(profile))
     else
       tag
     end
+  end
+
+  #I'm guessing at the file path structure, as the sample code does not include this.
+  def url_for_file_column(*args)
+    return args.join("/") << ".jpg"
+  end
+
+  def profile_path(profile)
+    return "/profile/"
   end
 end
